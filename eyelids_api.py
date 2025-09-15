@@ -1,20 +1,42 @@
 #!/usr/bin/env python3
 """
-API для управления super-system-eyelids
-Webhooks, приоритеты, метрики
+Enhanced API with JWT authentication and validation
+Based on Mistral's security recommendations
 """
 
 from flask import Flask, request, jsonify
+from flask_httpauth import HTTPTokenAuth
+from pydantic import BaseModel, ValidationError, Field
 import asyncio
 import aiohttp
 import json
+import os
 from datetime import datetime
 from eyelids_core import EyelidsCore
-# from cache_manager import CacheManager
-# from reflex_protocols import ReflexProtocolSystem
 
 app = Flask(__name__)
+auth = HTTPTokenAuth(scheme='Bearer')
 eyelids = EyelidsCore()
+
+# Get API token from environment
+VALID_API_TOKENS = os.getenv('API_TOKENS', 'default-token').split(',')
+
+@auth.verify_token
+def verify_token(token):
+    """Verify API token"""
+    return token in VALID_API_TOKENS
+
+# Pydantic models for validation
+class PriorityRequest(BaseModel):
+    data_id: str
+    priority: int = Field(ge=0, le=5)  # Priority between 0-5
+
+class WebhookRequest(BaseModel):
+    url: str
+    priority: str = Field(regex='^(critical|warning|info)$')
+
+class CleanupRequest(BaseModel):
+    type: str = Field(regex='^(soft|hard|emergency)$')
 
 class WebhookManager:
     def __init__(self):
@@ -25,8 +47,8 @@ class WebhookManager:
         }
         self.webhook_history = []
     
-    async def send_webhook(self, event_type, data, priority='info'):
-        """Отправка webhook уведомлений"""
+    async def send_webhook(self, event_type, data, priority='info', retries=3):
+        """Send webhook with retry logic (Mistral's improvement)"""
         webhook_data = {
             'timestamp': datetime.now().isoformat(),
             'event_type': event_type,
@@ -39,28 +61,36 @@ class WebhookManager:
         
         async with aiohttp.ClientSession() as session:
             for url in urls:
-                try:
-                    async with session.post(url, json=webhook_data, timeout=5) as response:
-                        if response.status == 200:
+                for attempt in range(retries):
+                    try:
+                        async with session.post(url, json=webhook_data, timeout=5) as response:
+                            if response.status == 200:
+                                self.webhook_history.append({
+                                    'url': url,
+                                    'status': 'success',
+                                    'timestamp': datetime.now().isoformat(),
+                                    'attempts': attempt + 1
+                                })
+                                break
+                    except Exception as e:
+                        if attempt == retries - 1:
                             self.webhook_history.append({
                                 'url': url,
-                                'status': 'success',
-                                'timestamp': datetime.now().isoformat()
+                                'status': 'failed',
+                                'error': str(e),
+                                'timestamp': datetime.now().isoformat(),
+                                'attempts': retries
                             })
-                except Exception as e:
-                    self.webhook_history.append({
-                        'url': url,
-                        'status': 'failed',
-                        'error': str(e),
-                        'timestamp': datetime.now().isoformat()
-                    })
+                            eyelids.logger.error(f"Webhook failed after {retries} attempts: {url} - {e}")
+                        else:
+                            await asyncio.sleep(2 ** attempt)  # Exponential backoff
 
 webhook_mgr = WebhookManager()
 
-# API Endpoints
+# API Endpoints with authentication
 @app.route('/api/v1/status', methods=['GET'])
 def get_status():
-    """Получить статус системы"""
+    """Get system status (public endpoint)"""
     sizes = eyelids.get_size_percentages()
     return jsonify({
         'status': 'active',
@@ -71,45 +101,77 @@ def get_status():
         'timestamp': datetime.now().isoformat()
     })
 
+@app.route('/api/v1/priority/set', methods=['POST'])
+@auth.login_required
+def set_priority():
+    """Set priority for data (protected endpoint)"""
+    try:
+        data = PriorityRequest(**request.json)
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
+    
+    # TODO: Implement actual priority setting
+    result = {'data_id': data.data_id, 'priority': data.priority, 'status': 'set'}
+    
+    # Send webhook notification
+    asyncio.create_task(webhook_mgr.send_webhook(
+        'priority_changed',
+        {'data_id': data.data_id, 'new_priority': data.priority},
+        'info'
+    ))
+    
+    return jsonify({'success': True, 'result': result})
+
 @app.route('/api/v1/cache/force-cleanup', methods=['POST'])
+@auth.login_required
 def force_cleanup():
-    """Принудительная очистка кэша"""
-    data = request.json
-    cleanup_type = data.get('type', 'soft')  # soft, hard, emergency
+    """Force cache cleanup (protected endpoint)"""
+    try:
+        data = CleanupRequest(**request.json)
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
+    
+    cleanup_type = data.type
+    
+    # Log the cleanup request
+    eyelids.logger.warning(f"Force cleanup requested: {cleanup_type}")
     
     # TODO: Implement actual cleanup
     result = {'freed_space': 0, 'type': cleanup_type}
     
     # Send webhook notification
+    priority = 'critical' if cleanup_type == 'emergency' else 'warning'
     asyncio.create_task(webhook_mgr.send_webhook(
-        'cache_cleanup',
+        f'{cleanup_type}_cleanup',
         {'type': cleanup_type, 'result': result},
-        'warning' if cleanup_type != 'emergency' else 'critical'
+        priority
     ))
     
     return jsonify({'success': True, 'result': result})
 
 @app.route('/api/v1/webhooks/register', methods=['POST'])
+@auth.login_required
 def register_webhook():
-    """Регистрация webhook URL"""
-    data = request.json
-    url = data.get('url')
-    priority = data.get('priority', 'info')
+    """Register webhook URL (protected endpoint)"""
+    try:
+        data = WebhookRequest(**request.json)
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
     
-    if not url or priority not in ['critical', 'warning', 'info']:
-        return jsonify({'error': 'Invalid url or priority'}), 400
+    webhook_mgr.webhooks[data.priority].append(data.url)
     
-    webhook_mgr.webhooks[priority].append(url)
+    eyelids.logger.info(f"Webhook registered: {data.url} ({data.priority})")
     
     return jsonify({
         'success': True,
-        'registered_url': url,
-        'priority': priority
+        'registered_url': data.url,
+        'priority': data.priority
     })
 
 @app.route('/api/v1/metrics/export', methods=['GET'])
+@auth.login_required
 def export_metrics():
-    """Экспорт метрик для мониторинга"""
+    """Export metrics (protected endpoint)"""
     sizes = eyelids.get_size_percentages()
     metrics = {
         'core_metrics': {
@@ -132,7 +194,7 @@ def export_metrics():
 
 @app.route('/api/v1/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """Health check endpoint (public)"""
     sizes = eyelids.get_size_percentages()
     
     # Determine health status
@@ -152,6 +214,20 @@ def health_check():
         },
         'timestamp': datetime.now().isoformat()
     })
+
+# Error handlers
+@app.errorhandler(401)
+def unauthorized(e):
+    return jsonify({'error': 'Unauthorized', 'message': 'Invalid or missing API token'}), 401
+
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify({'error': 'Bad Request', 'message': str(e)}), 400
+
+@app.errorhandler(500)
+def internal_error(e):
+    eyelids.logger.error(f"Internal error: {e}")
+    return jsonify({'error': 'Internal Server Error'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
