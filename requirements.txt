@@ -1,0 +1,29 @@
+# CORTEX v3.0 Dependencies
+
+# Core
+python-dotenv==1.0.0
+pyyaml==6.0.1
+
+# Async operations
+asyncio
+aiohttp==3.8.5
+
+# Web framework
+flask==3.0.0
+flask-httpauth==4.8.0
+
+# Validation
+pydantic==2.4.2
+
+# Logging
+logging
+
+# Testing
+pytest==7.4.2
+pytest-asyncio==0.21.1
+
+# Documentation
+flasgger==0.9.7
+
+# Monitoring (optional)
+prometheus-client==0.17.1
