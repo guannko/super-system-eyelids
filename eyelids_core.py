@@ -2,6 +2,7 @@
 """
 Super System Eyelids - Входной репозиторий CORTEX v3.0
 Архитектура: 7% core + 2% floating cache
+Enhanced with Mistral's improvements
 """
 
 import os
@@ -14,6 +15,10 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 from enum import Enum
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 class DataType(Enum):
     CRITICAL = "critical"
@@ -39,6 +44,7 @@ class DataItem:
     cache_state: CacheState
     target_repo: Optional[str] = None
     processing_time: Optional[float] = None
+    is_processed_by_reflex: bool = False  # Mistral's improvement
 
 class EyelidsCore:
     """
@@ -51,19 +57,22 @@ class EyelidsCore:
         self.core_path = self.base_path / "core"
         self.cache_path = self.base_path / "cache"
         
-        # Лимиты размеров (в байтах)
-        self.CORE_LIMIT_PERCENT = 7
-        self.CACHE_LIMIT_PERCENT = 2
-        self.TOTAL_LIMIT_PERCENT = 9
+        # Лимиты из environment variables (Mistral's improvement)
+        self.CORE_LIMIT_PERCENT = float(os.getenv("CORE_LIMIT_PERCENT", 7))
+        self.CACHE_LIMIT_PERCENT = float(os.getenv("CACHE_LIMIT_PERCENT", 2))
+        self.TOTAL_LIMIT_PERCENT = float(os.getenv("TOTAL_LIMIT_PERCENT", 9))
         
         # Пороговые значения для триггеров
-        self.CACHE_WARNING_PERCENT = 1.5
-        self.CACHE_CRITICAL_PERCENT = 2.0
-        self.CORE_CRITICAL_PERCENT = 7.0
+        self.CACHE_WARNING_PERCENT = float(os.getenv("CACHE_WARNING_PERCENT", 1.5))
+        self.CACHE_CRITICAL_PERCENT = float(os.getenv("CACHE_CRITICAL_PERCENT", 2.0))
+        self.CORE_CRITICAL_PERCENT = float(os.getenv("CORE_CRITICAL_PERCENT", 7.0))
         
         # Временные лимиты (в секундах)
-        self.PROCESSING_TIMEOUT = 10
-        self.AUTOSAVE_INTERVAL = 300  # 5 минут
+        self.PROCESSING_TIMEOUT = int(os.getenv("PROCESSING_TIMEOUT", 10))
+        self.AUTOSAVE_INTERVAL = int(os.getenv("AUTOSAVE_INTERVAL", 300))  # 5 минут
+        
+        # Размеры файлов
+        self.MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", 10))
         
         self.setup_directories()
         self.setup_logging()
@@ -74,7 +83,9 @@ class EyelidsCore:
             'cache_hits': 0,
             'overflow_events': 0,
             'emergency_cleanups': 0,
-            'average_processing_time': 0.0
+            'average_processing_time': 0.0,
+            'reflex_processed': 0,  # New metric
+            'double_processing_prevented': 0  # New metric
         }
         
     def setup_directories(self):
@@ -96,15 +107,21 @@ class EyelidsCore:
             directory.mkdir(parents=True, exist_ok=True)
             
     def setup_logging(self):
-        """Настройка логирования"""
+        """Настройка логирования с ротацией"""
         log_path = self.base_path / "logs"
         log_path.mkdir(exist_ok=True)
+        
+        from logging.handlers import RotatingFileHandler
         
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler(log_path / "eyelids.log"),
+                RotatingFileHandler(
+                    log_path / "eyelids.log",
+                    maxBytes=10*1024*1024,  # 10MB
+                    backupCount=5
+                ),
                 logging.StreamHandler()
             ]
         )
@@ -135,3 +152,11 @@ class EyelidsCore:
             'cache_bytes': cache_size,
             'total_bytes': total_size
         }
+    
+    def check_file_size_limit(self, size_bytes: int) -> bool:
+        """Проверка лимита размера файла"""
+        max_size = self.MAX_FILE_SIZE_MB * 1024 * 1024
+        if size_bytes > max_size:
+            self.logger.warning(f"File size {size_bytes} exceeds limit {max_size}")
+            return False
+        return True
