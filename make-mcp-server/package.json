@@ -1,0 +1,35 @@
+{
+  "name": "make-mcp-server",
+  "version": "1.0.0",
+  "description": "Make.com MCP Server for CORTEX v3.0 - Direct Claude to Make.com automation",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsc && node dist/server.js",
+    "test": "node dist/server.js --test"
+  },
+  "keywords": [
+    "make.com",
+    "mcp",
+    "claude",
+    "automation",
+    "cortex",
+    "brain-index"
+  ],
+  "author": "Jean Claude & Boris",
+  "license": "Private",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^20.10.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
