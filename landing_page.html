@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Готовые AI-решения для бизнеса — Бот + Мониторинг</title>
+  <meta name="description" content="Продаваемые шаблоны: Telegram-бот ($299/$599/$999) и Monitoring-as-a-Service ($29–$99/мес). Быстрый запуск за 24–48 часов." />
+  <style>
+    :root {
+      --bg: #0b1220; --card: #0f172a; --muted: #94a3b8; --text: #eaf0ff; --primary:#60a5fa; --ok:#22c55e;
+    }
+    *{box-sizing:border-box}
+    body { margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    header { padding: 24px 0; display:flex; align-items:center; justify-content:space-between }
+    .logo { font-weight: 700; letter-spacing: .3px; }
+    .cta { display:flex; gap:12px }
+    .btn { background: var(--primary); color:#001220; border:0; padding: 12px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; text-decoration: none }
+    .btn.secondary { background: #1e293b; color: var(--text); }
+    .hero { display:grid; grid-template-columns: 1.3fr 1fr; gap:28px; align-items:center; margin-top: 20px; }
+    .hero h1 { font-size: 36px; margin: 0 0 12px; }
+    .hero p { color: var(--muted); margin: 0 0 16px; line-height: 1.6; }
+    .card { background: var(--card); border: 1px solid #1e293b; border-radius: 14px; padding: 18px; }
+    .list { margin: 10px 0 0; padding: 0 0 0 18px; color: var(--text); }
+    .grid { display:grid; gap:18px; grid-template-columns: repeat(3, 1fr); margin-top: 26px; }
+    .price { font-size: 22px; font-weight: 700; margin: 6px 0 12px; }
+    .muted { color: var(--muted); font-size: 14px; }
+    .kpis { display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; margin-top:20px }
+    .kpi { text-align:center; padding:16px; background:#0b1426; border:1px solid #1e293b; border-radius:12px }
+    footer { margin: 40px 0 20px; color: var(--muted); text-align:center; font-size: 13px }
+    @media (max-width: 900px){ .hero{ grid-template-columns:1fr } .grid{ grid-template-columns:1fr } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">Super AI Systems</div>
+      <div class="cta">
+        <a class="btn secondary" href="#pricing">Тарифы</a>
+        <a class="btn" href="#lead">Оставить заявку</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Готовые AI‑продукты за 24–48 часов</h1>
+        <p>Запустите Telegram‑бота под ваш бизнес и подключите мониторинг‑как‑сервис. Без переплат. С готовыми тарифами. Просто и быстро.</p>
+        <div class="kpis">
+          <div class="kpi"><div class="price">10+ ниш</div><div class="muted">ботов готово</div></div>
+          <div class="kpi"><div class="price">24–48 ч</div><div class="muted">срок запуска</div></div>
+          <div class="kpi"><div class="price">$29–$99</div><div class="muted">подписка на мониторинг</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <b>Что входит:</b>
+        <ul class="list">
+          <li>Шаблон Telegram‑бота, готовый к продажам</li>
+          <li>Сбор лидов и быстрая кастомизация</li>
+          <li>Monitoring‑as‑a‑Service с дашбордом</li>
+          <li>Quick Deploy скрипт — развертывание за минуты</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="pricing" class="grid">
+      <div class="card">
+        <h3>Bot — Basic</h3>
+        <div class="price">$299</div>
+        <div class="muted">Приветствие, помощь, FAQ</div>
+        <ul class="list">
+          <li>Готов за 24–48 часов</li>
+          <li>Без лишних зависимостей</li>
+          <li>Сбор контактов клиентов</li>
+        </ul>
+        <a class="btn" href="#lead">Заказать</a>
+      </div>
+      <div class="card">
+        <h3>Bot — Pro</h3>
+        <div class="price">$599</div>
+        <div class="muted">Ключевые слова, меню, лид‑менеджмент</div>
+        <ul class="list">
+          <li>Сохранение лидов в CSV</li>
+          <li>Простая рассылка подписчикам</li>
+          <li>Быстрая адаптация под нишу</li>
+        </ul>
+        <a class="btn" href="#lead">Заказать</a>
+      </div>
+      <div class="card">
+        <h3>Bot — Elite</h3>
+        <div class="price">$999</div>
+        <div class="muted">Продвинутые сценарии и рассылки</div>
+        <ul class="list">
+          <li>Готовый к монетизации</li>
+          <li>Встроенная аналитика</li>
+          <li>Поддержка 2 недели</li>
+        </ul>
+        <a class="btn" href="#lead">Заказать</a>
+      </div>
+    </section>
+
+    <section class="grid" style="margin-top: 16px;">
+      <div class="card">
+        <h3>Monitoring — Starter</h3>
+        <div class="price">$29/мес</div>
+        <div class="muted">До 3 источников</div>
+        <ul class="list">
+          <li>Сбор метрик через API</li>
+          <li>Простой дашборд</li>
+          <li>Оповещения по ошибкам</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Monitoring — Growth</h3>
+        <div class="price">$59/мес</div>
+        <div class="muted">До 10 источников</div>
+        <ul class="list">
+          <li>История метрик</li>
+          <li>Агрегированная статистика</li>
+          <li>Токен‑аутентификация</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Monitoring — Scale</h3>
+        <div class="price">$99/мес</div>
+        <div class="muted">До 30 источников</div>
+        <ul class="list">
+          <li>Уведомления и отчёты</li>
+          <li>Визуальный дашборд</li>
+          <li>Приоритетная поддержка</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="lead" class="card" style="margin-top: 22px;">
+      <h3>Оставить заявку</h3>
+      <p class="muted">Заполните форму — свяжемся в течение рабочего дня.</p>
+      <form method="post" onsubmit="leadSubmit(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <input id="name" placeholder="Имя" required style="padding:12px;border-radius:8px;border:1px solid #1e293b;background:#0b1426;color:var(--text)">
+          <input id="contact" placeholder="Email или телефон" required style="padding:12px;border-radius:8px;border:1px solid #1e293b;background:#0b1426;color:var(--text)">
+        </div>
+        <textarea id="message" placeholder="Расскажите о задаче" style="margin-top:10px;width:100%;min-height:100px;padding:12px;border-radius:8px;border:1px solid #1e293b;background:#0b1426;color:var(--text)"></textarea>
+        <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+          <button class="btn" type="submit">Отправить</button>
+          <span class="muted">или напишите нам в Telegram</span>
+        </div>
+      </form>
+    </section>
+
+    <footer>
+      © 2025 Super AI Systems — быстрый старт AI‑продуктов для малого бизнеса
+    </footer>
+  </div>
+<script>
+  function leadSubmit(e){
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const contact = document.getElementById('contact').value.trim();
+    const message = document.getElementById('message').value.trim();
+    // Minimal: отправим на Formspree/вебхук — замените URL на свой
+    fetch('https://formspree.io/f/your-id',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({name, contact, message, product:'AI Sales Page'})
+    }).then(()=> alert('Спасибо! Заявка отправлена.'))
+      .catch(()=> alert('Ошибка отправки. Напишите нам в Telegram.'))
+  }
+</script>
+</body>
+</html>

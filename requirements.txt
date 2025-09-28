@@ -27,3 +27,10 @@ flasgger==0.9.7
 
 # Monitoring (optional)
 prometheus-client==0.17.1
+
+# System metrics and async file IO
+psutil==5.9.8
+aiofiles==23.2.1
+
+# Encryption for autosave protocol (optional)
+cryptography==41.0.7

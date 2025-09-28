@@ -80,3 +80,79 @@ Dashboard available at: `http://localhost:8000` (coming soon)
 ## 🔥 Created by Jean Claude / CORTEX v3.0
 
 *Energy: MAXIMUM! Let's fucking go!*
+
+---
+
+# 💸 Sellable Add-ons (Ready-to-Ship)
+
+The repository now includes ready-to-sell products focused on quick delivery and simple customization.
+
+## 1) Telegram Bot Template (sellable)
+
+- File: `commercial_bot_template.py`
+- No external heavy frameworks (std lib only)
+- Lead capture to `leads.csv`, subscribers in `subscribers.txt`
+- Pricing to offer clients: Basic $299 / Pro $599 / Elite $999
+
+Run:
+
+```bash
+TELEGRAM_BOT_TOKEN=123456:ABC python3 commercial_bot_template.py
+```
+
+Customize:
+- `BOT_NAME`, `COMPANY_NAME`, `TEXTS`, `KEYWORDS`, `FAQ`
+
+## 2) Monitoring as a Service
+
+- File: `monitoring_service.py` (Flask)
+- Token auth via header `X-API-Key`
+- Stores metrics as JSON Lines in `metrics.db.jsonl`
+- Dashboard: `/dashboard`, Health: `/health`
+- Pricing: $29 / $59 / $99 per month
+
+Run:
+
+```bash
+MONITORING_API_KEY=demo PORT=8088 python3 monitoring_service.py
+```
+
+Send metric example:
+
+```bash
+curl -X POST 'http://localhost:8088/api/metrics' \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: demo' \
+  -d '{"source":"site","metric":"signup","value":1}'
+```
+
+## 3) Landing Page
+
+- File: `landing_page.html`
+- Open directly in a browser or host with any static host
+- Replace the lead form endpoint with your Formspree/Make/Zapier webhook
+
+## 4) Quick Deploy
+
+- File: `quick_deploy.sh`
+- Creates venv, installs Flask, prepares `.env`, runs monitoring and/or bot
+
+```bash
+chmod +x quick_deploy.sh
+./quick_deploy.sh setup
+./quick_deploy.sh monitoring   # start dashboard on http://localhost:8088/dashboard
+./quick_deploy.sh bot          # run Telegram bot
+./quick_deploy.sh all          # run both
+```
+
+## 5) Dependencies
+
+Install dependencies (for monitoring and protocols):
+
+```bash
+pip install -r requirements.txt
+```
+
+## 6) GitHub Pages (Landing auto-deploy)
+
+Use the provided GitHub Actions workflow to publish `landing_page.html` to GitHub Pages. Enable Pages in repo Settings → Pages → Source: GitHub Actions.
