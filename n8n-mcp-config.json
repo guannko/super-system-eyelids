@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "n8n": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-n8n",
+        "--apiUrl",
+        "https://annoris.app.n8n.cloud",
+        "--apiKey",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyODk0MmE3OC1lZDgwLTQzOTctYjI3Ni04NzU5NzQ0OGFhNGIiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzYxMDcxNDMyfQ.85BiPoqrFm3tO41y4UQQ_AJpzTRuaAzhvcOcbyxnZ90"
+      ]
+    }
+  }
+}
